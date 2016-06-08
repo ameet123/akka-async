@@ -23,8 +23,8 @@ public class Application implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        akkaProcessor.calculate(4, 10000, 10000);
+        akkaProcessor.calculate(4, 10000, 10000, false);
         System.out.println(".... Second time...\n\n");
-        akkaProcessor.calculate(4, 10000, 10000);
+        akkaProcessor.calculate(4, 10000, 10000, true);
     }
 }

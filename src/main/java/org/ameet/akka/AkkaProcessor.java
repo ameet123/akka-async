@@ -8,6 +8,8 @@ import org.ameet.akka.actor.Master;
 import org.ameet.akka.message.Initiate;
 import org.springframework.stereotype.Component;
 
+import static akka.actor.TypedActor.context;
+
 /**
  * Created by achaub001c on 6/7/2016.
  * This component creates the Akka system and performs the requested processing
@@ -36,14 +38,16 @@ public class AkkaProcessor {
      * @param nrOfElements
      * @param nrOfMessages
      */
-    public void calculate(final int nrOfWorkers, final int nrOfElements, final int nrOfMessages) {
+    public void calculate(final int nrOfWorkers, final int nrOfElements, final int nrOfMessages, boolean isShut) {
         // create the result listener, which will print the result and shutdown the system
-        final ActorRef listener = actorSystem.actorOf(Props.create(Listener.class), "listener:" + System
+        final ActorRef listener = actorSystem.actorOf(Props.create(Listener.class, isShut), "listener:" + System
                 .currentTimeMillis());
 
         // create the master
         ActorRef master = actorSystem.actorOf(Props.create(Master.class, nrOfWorkers, nrOfMessages, nrOfElements,
-                listener), "master" + System.currentTimeMillis());
+                isShut,
+                null), "master" + System.currentTimeMillis());
+
         // start calculation
         master.tell(new Initiate(), ActorRef.noSender());
     }

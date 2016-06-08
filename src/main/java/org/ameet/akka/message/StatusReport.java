@@ -1,6 +1,7 @@
 package org.ameet.akka.message;
 
-import java.time.Duration;
+
+import scala.concurrent.duration.Duration;
 
 /**
  * Created by achaub001c on 6/6/2016.
