@@ -3,12 +3,9 @@ package org.ameet.akka;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import org.ameet.akka.actor.Listener;
 import org.ameet.akka.actor.Master;
 import org.ameet.akka.message.Initiate;
 import org.springframework.stereotype.Component;
-
-import static akka.actor.TypedActor.context;
 
 /**
  * Created by achaub001c on 6/7/2016.
@@ -40,14 +37,12 @@ public class AkkaProcessor {
      */
     public void calculate(final int nrOfWorkers, final int nrOfElements, final int nrOfMessages, boolean isShut) {
         // create the result listener, which will print the result and shutdown the system
-        final ActorRef listener = actorSystem.actorOf(Props.create(Listener.class, isShut), "listener:" + System
-                .currentTimeMillis());
-
+//        final ActorRef listener = actorSystem.actorOf(Props.create(Listener.class, isShut), "listener:" + System
+//                .currentTimeMillis());
         // create the master
         ActorRef master = actorSystem.actorOf(Props.create(Master.class, nrOfWorkers, nrOfMessages, nrOfElements,
                 isShut,
                 null), "master" + System.currentTimeMillis());
-
         // start calculation
         master.tell(new Initiate(), ActorRef.noSender());
     }
