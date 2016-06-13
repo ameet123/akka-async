@@ -3,17 +3,23 @@ package org.ameet.akka.actor;
 import akka.actor.UntypedActor;
 import org.ameet.akka.message.Result;
 import org.ameet.akka.message.Work;
+import org.ameet.app.QuoteService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by achaub001c on 6/6/2016.
  */
 public class Worker extends UntypedActor {
+    @Autowired
+    private QuoteService quoteService;
+
     @Override
     public void onReceive(Object message) throws Exception {
         if (message instanceof Work) {
             Work work = (Work) message;
-            double result = calculatePiFor(work.getStart(), work.getNrOfElements());
-            getSender().tell(new Result(result), getSelf());
+//            double result = calculatePiFor(work.getStart(), work.getNrOfElements());
+//            getSender().tell(new Result(result), getSelf());
+            getSender().tell(new Result(quoteService.getQuote(work.getUrl())), getSelf());
         } else {
             unhandled(message);
         }

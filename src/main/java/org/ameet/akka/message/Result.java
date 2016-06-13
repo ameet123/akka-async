@@ -6,13 +6,24 @@ package org.ameet.akka.message;
  * the result of their work.
  */
 public class Result {
-    private final double value;
+//    private final double value;
 
-    public Result(double value) {
-        this.value = value;
+    private final String quote;
+
+    public Result(String quote) {
+        this.quote = quote;
     }
 
-    public double getValue() {
-        return value;
+    public String getQuote() {
+        return quote;
     }
+
+
+//    public Result(double value) {
+//        this.value = value;
+//    }
+//
+//    public double getValue() {
+//        return value;
+//    }
 }

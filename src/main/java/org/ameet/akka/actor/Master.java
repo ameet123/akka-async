@@ -25,15 +25,18 @@ public class Master extends UntypedActor {
     private final long start = System.currentTimeMillis();
 
     private double pi;
-    private int nrOfResults;
+    private int nrOfResults=0;
     private Router router;
     private double answer;
     private CountDownLatch latch;
+    private String url;
+    private List<String> quoteList;
 
-    public Master(final int nrOfWorkers, int nrOfMessages, int nrOfElements, CountDownLatch latch) {
+    public Master(String url, CountDownLatch latch) {
         this.latch = latch;
-        this.nrOfMessages = nrOfMessages;
-        this.nrOfElements = nrOfElements;
+        this.url = url;
+
+        quoteList = new ArrayList<>();
 
         List<Routee> routees = new ArrayList<Routee>();
         for (int i = 0; i < nrOfWorkers; i++) {
@@ -51,11 +54,15 @@ public class Master extends UntypedActor {
     public void onReceive(Object message) {
         if (message instanceof Initiate) {
             for (int start = 0; start < nrOfMessages; start++) {
-                router.route(new Work(start, nrOfElements), getSelf());
+//                router.route(new Work(start, nrOfElements), getSelf());
+                router.route(new Work(url), getSelf());
             }
         } else if (message instanceof Result) {
+
             Result result = (Result) message;
-            pi += result.getValue();
+            quoteList.add(result.getQuote());
+
+//            pi += result.getValue();
             nrOfResults += 1;
             if (nrOfResults == nrOfMessages) {
                 System.out.println("Final result received in master and counting down latch.");
@@ -64,7 +71,7 @@ public class Master extends UntypedActor {
             }
         } else if (message instanceof Answer) {
             System.out.println("Received command for answer, shutting self down. sayonara!");
-            getSender().tell(new Answer().setPi(answer), getSelf());
+            getSender().tell(new Answer(quoteList), getSelf());
             getContext().stop(getSelf());
         } else {
             unhandled(message);

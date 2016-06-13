@@ -5,20 +5,30 @@ package org.ameet.akka.message;
  * This is sent by Master to the Workers
  */
 public class Work {
-    private final int start;
-    private final int nrOfElements;
+    private final String url;
 
-    public Work(int start, int nrOfElements) {
-        this.start = start;
-        this.nrOfElements = nrOfElements;
+    public Work(String url) {
 
+        this.url = url;
     }
 
-    public int getStart() {
-        return start;
+    public String getUrl() {
+        return url;
     }
-
-    public int getNrOfElements() {
-        return nrOfElements;
-    }
+    //    private final int start;
+//    private final int nrOfElements;
+//
+//    public Work(int start, int nrOfElements) {
+//        this.start = start;
+//        this.nrOfElements = nrOfElements;
+//
+//    }
+//
+//    public int getStart() {
+//        return start;
+//    }
+//
+//    public int getNrOfElements() {
+//        return nrOfElements;
+//    }
 }

@@ -43,7 +43,8 @@ public class AkkaProcessor {
      * @param nrOfElements
      * @param nrOfMessages
      */
-    public Answer calculate(final int nrOfWorkers, final int nrOfElements, final int nrOfMessages)
+//    public Answer calculate(final int nrOfWorkers, final int nrOfElements, final int nrOfMessages)
+    public Answer calculate(final String url)
             throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
         // create the master

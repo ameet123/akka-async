@@ -24,8 +24,9 @@ public class Application implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Answer a = akkaProcessor.calculate(4, 10000, 10000);
-        System.out.println(" ############ ANSWER 1 = "+a.getPi());
+
+//        Answer a = akkaProcessor.calculate(4, 10000, 10000);
+//        System.out.println(" ############ ANSWER 1 = "+a.getPi());
 //        System.out.println(".... Second time...\n\n");
 //        Answer a1 = akkaProcessor.calculate(4, 10000, 10000, false);
 //        System.out.println(" ############ ANSWER 2 = "+a1.getPi());
