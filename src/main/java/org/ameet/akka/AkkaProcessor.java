@@ -3,9 +3,17 @@ package org.ameet.akka;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import akka.pattern.Patterns;
 import org.ameet.akka.actor.Master;
+import org.ameet.akka.message.Answer;
 import org.ameet.akka.message.Initiate;
 import org.springframework.stereotype.Component;
+import scala.concurrent.Await;
+import scala.concurrent.duration.Duration;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by achaub001c on 6/7/2016.
@@ -16,9 +24,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AkkaProcessor {
+    int i = 1;
     private ActorSystem actorSystem;
     private ActorRef master;
-    private ActorRef listener;
     private int nrOfWorkers = 4;
     private int nrOfMessages = 10000;
     private int nrOfElements = 10000;
@@ -35,15 +43,25 @@ public class AkkaProcessor {
      * @param nrOfElements
      * @param nrOfMessages
      */
-    public void calculate(final int nrOfWorkers, final int nrOfElements, final int nrOfMessages, boolean isShut) {
-        // create the result listener, which will print the result and shutdown the system
-//        final ActorRef listener = actorSystem.actorOf(Props.create(Listener.class, isShut), "listener:" + System
-//                .currentTimeMillis());
+    public Answer calculate(final int nrOfWorkers, final int nrOfElements, final int nrOfMessages)
+            throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
         // create the master
         ActorRef master = actorSystem.actorOf(Props.create(Master.class, nrOfWorkers, nrOfMessages, nrOfElements,
-                isShut,
-                null), "master" + System.currentTimeMillis());
+                latch), "master" + System.currentTimeMillis());
         // start calculation
-        master.tell(new Initiate(), ActorRef.noSender());
+        master.tell(new Initiate(i++), ActorRef.noSender());
+        latch.await(5, TimeUnit.SECONDS);
+        System.out.println("Latch released... asking for result");
+        Answer ans = (Answer) Await.result(Patterns.ask(master, new Answer(), 2000), Duration.create(3000, TimeUnit
+                .MILLISECONDS));
+        System.out.println("Answered received!=" + ans.getPi());
+        return ans;
+    }
+
+    public void shutdown() throws TimeoutException, InterruptedException {
+        System.out.println("\n\nKilling ##########");
+        actorSystem.terminate();
+        Await.ready(actorSystem.whenTerminated(), Duration.create(5, TimeUnit.SECONDS));
     }
 }

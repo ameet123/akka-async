@@ -7,15 +7,14 @@ import akka.routing.ActorRefRoutee;
 import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
+import org.ameet.akka.message.Answer;
 import org.ameet.akka.message.Initiate;
 import org.ameet.akka.message.Result;
-import org.ameet.akka.message.StatusReport;
 import org.ameet.akka.message.Work;
-import scala.concurrent.duration.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by achaub001c on 6/6/2016.
@@ -24,24 +23,21 @@ public class Master extends UntypedActor {
     private final int nrOfMessages;
     private final int nrOfElements;
     private final long start = System.currentTimeMillis();
-    private final ActorRef listener;
+
     private double pi;
     private int nrOfResults;
     private Router router;
-    private boolean isShut;
-    private boolean isListenerTerminated = false;
-    private boolean isMasterTerminated = false;
+    private double answer;
+    private CountDownLatch latch;
 
-    public Master(final int nrOfWorkers, int nrOfMessages, int nrOfElements, boolean isShut, ActorRef listener) {
-        this.listener = getContext().system().actorOf(Props.create(Listener.class, isShut), "listener:" + System
-                .nanoTime());
+    public Master(final int nrOfWorkers, int nrOfMessages, int nrOfElements, CountDownLatch latch) {
+        this.latch = latch;
         this.nrOfMessages = nrOfMessages;
         this.nrOfElements = nrOfElements;
-        List<Routee> routees = new ArrayList<Routee>();
 
+        List<Routee> routees = new ArrayList<Routee>();
         for (int i = 0; i < nrOfWorkers; i++) {
             ActorRef r = getContext().actorOf(Props.create(Worker.class));
-            getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
         }
         router = new Router(new RoundRobinRoutingLogic(), routees);
@@ -62,13 +58,14 @@ public class Master extends UntypedActor {
             pi += result.getValue();
             nrOfResults += 1;
             if (nrOfResults == nrOfMessages) {
-                System.out.println("Final result received in master...");
-                // Send the result to the listener
-                Duration duration = Duration.create((System.currentTimeMillis() - start), TimeUnit.MILLISECONDS);
-                listener.tell(new StatusReport(pi, duration), getSelf());
-                // Stops this actor and all its supervised children
-                getContext().stop(getSelf());
+                System.out.println("Final result received in master and counting down latch.");
+                answer = pi;
+                latch.countDown();
             }
+        } else if (message instanceof Answer) {
+            System.out.println("Received command for answer, shutting self down. sayonara!");
+            getSender().tell(new Answer().setPi(answer), getSelf());
+            getContext().stop(getSelf());
         } else {
             unhandled(message);
         }

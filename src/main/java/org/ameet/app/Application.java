@@ -1,6 +1,7 @@
 package org.ameet.app;
 
 import org.ameet.akka.AkkaProcessor;
+import org.ameet.akka.message.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -23,8 +24,11 @@ public class Application implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        akkaProcessor.calculate(4, 10000, 10000, false);
-        System.out.println(".... Second time...\n\n");
-        akkaProcessor.calculate(4, 10000, 10000, true);
+        Answer a = akkaProcessor.calculate(4, 10000, 10000);
+        System.out.println(" ############ ANSWER 1 = "+a.getPi());
+//        System.out.println(".... Second time...\n\n");
+//        Answer a1 = akkaProcessor.calculate(4, 10000, 10000, false);
+//        System.out.println(" ############ ANSWER 2 = "+a1.getPi());
+        akkaProcessor.shutdown();
     }
 }
