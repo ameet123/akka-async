@@ -1,5 +1,5 @@
 app:
-  rest_url: http://gturnquist-quoters.cfapps.io/api/random
+  rest_url: http://quotes.stormconsultancy.co.uk/random.json
   quote_count: 5
   timeout_ms: 2000
   timeout_sec: 2

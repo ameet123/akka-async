@@ -1,5 +1,7 @@
 package org.ameet.akka.message;
 
+import org.ameet.app.model.TechQuote;
+
 import java.util.List;
 
 /**
@@ -7,24 +9,16 @@ import java.util.List;
  * to get the final answer
  */
 public class Answer {
-    private List<String> quotes;
+    private List<TechQuote> quotes;
 
-    public Answer(List<String> quotes) {
-
+    public Answer(List<TechQuote> quotes) {
         this.quotes = quotes;
     }
 
-    public List<String> getQuote() {
+    public Answer() {
+    }
+
+    public List<TechQuote> getQuote() {
         return quotes;
     }
-    //    private double pi;
-//
-//    public double getPi() {
-//        return pi;
-//    }
-//
-//    public Answer setPi(double pi) {
-//        this.pi = pi;
-//        return this;
-//    }
 }

@@ -11,6 +11,8 @@ import org.ameet.akka.message.Answer;
 import org.ameet.akka.message.Initiate;
 import org.ameet.akka.message.Result;
 import org.ameet.akka.message.Work;
+import org.ameet.app.QuoteService;
+import org.ameet.app.model.TechQuote;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,22 +22,22 @@ import java.util.concurrent.CountDownLatch;
  * Created by achaub001c on 6/6/2016.
  */
 public class Master extends UntypedActor {
-    private final int nrOfMessages;
-    private final int nrOfElements;
     private final long start = System.currentTimeMillis();
-
+    private int nrOfWorkers;
     private double pi;
-    private int nrOfResults=0;
+    private int nrOfResults = 0;
     private Router router;
     private double answer;
     private CountDownLatch latch;
     private String url;
-    private List<String> quoteList;
+    private List<TechQuote> quoteList;
+    private QuoteService quoteService;
 
-    public Master(String url, CountDownLatch latch) {
+    public Master(int nrOfWorkers, String url, CountDownLatch latch, QuoteService quoteService) {
         this.latch = latch;
+        this.quoteService = quoteService;
         this.url = url;
-
+        this.nrOfWorkers = nrOfWorkers;
         quoteList = new ArrayList<>();
 
         List<Routee> routees = new ArrayList<Routee>();
@@ -53,20 +55,16 @@ public class Master extends UntypedActor {
      */
     public void onReceive(Object message) {
         if (message instanceof Initiate) {
-            for (int start = 0; start < nrOfMessages; start++) {
-//                router.route(new Work(start, nrOfElements), getSelf());
-                router.route(new Work(url), getSelf());
+            for (int start = 0; start < nrOfWorkers; start++) {
+                router.route(new Work(url, quoteService), getSelf());
             }
         } else if (message instanceof Result) {
 
             Result result = (Result) message;
             quoteList.add(result.getQuote());
-
-//            pi += result.getValue();
             nrOfResults += 1;
-            if (nrOfResults == nrOfMessages) {
+            if (nrOfResults == nrOfWorkers) {
                 System.out.println("Final result received in master and counting down latch.");
-                answer = pi;
                 latch.countDown();
             }
         } else if (message instanceof Answer) {
